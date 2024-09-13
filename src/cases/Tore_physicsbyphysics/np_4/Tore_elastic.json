@@ -1,0 +1,191 @@
+{
+    "Name": "Tore elastic",
+    "ShortName": "Tore_elas",
+    "Models": {
+        "cfpdes": {
+            "equations": [
+                "elastic"
+            ]
+        },
+        "elastic": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pchv1",
+                        "name": "displacement",
+                        "symbol": "u"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "elastic_Conductor",
+                    "materials": [
+                        "Conductor"
+                    ],
+                    "setup": {
+                        "coefficients": {
+                            "c": "materials_Lame_mu:materials_Lame_mu",
+                            "gamma": "{-materials_Lame_lambda*(elastic_div_u) - materials_Lame_mu*elastic_grad_u_00 - bool_dilatation*materials_stress_T,-materials_Lame_mu*elastic_grad_u_10,-materials_Lame_mu*elastic_grad_u_20, -materials_Lame_mu*elastic_grad_u_01,-materials_Lame_lambda*(elastic_div_u) - materials_Lame_mu*elastic_grad_u_11 - bool_dilatation*materials_stress_T,-materials_Lame_mu*elastic_grad_u_21, -materials_Lame_mu*elastic_grad_u_02,-materials_Lame_mu*elastic_grad_u_12,-materials_Lame_lambda*(elastic_div_u) - materials_Lame_mu*elastic_grad_u_22 - bool_dilatation*materials_stress_T}:bool_dilatation:materials_stress_T:materials_Lame_lambda:materials_Lame_mu:elastic_div_u:elastic_grad_u_00:elastic_grad_u_01:elastic_grad_u_10:elastic_grad_u_11:elastic_grad_u_20:elastic_grad_u_21:elastic_grad_u_22:elastic_grad_u_02:elastic_grad_u_12",
+                            "f": "{bool_laplace*materials_F_laplace_0,bool_laplace*materials_F_laplace_1,bool_laplace*materials_F_laplace_2}:bool_laplace:materials_F_laplace_0:materials_F_laplace_1:materials_F_laplace_2"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "Parameters": {
+        "bool_laplace": 1,
+        "bool_dilatation": 0,
+        "V0": 0,
+        "V1": "1/4* 0.23185953",
+        "hw": 80000,
+        "T_c": 293,
+        "T_i": 293,
+        "mu0": 1.2566370614359173e-06,
+        "T0": "293."
+    },
+    "Meshes": {
+        "cfpdes": {
+            "Fields": {
+                "B": {
+                    "filename": "$cfgdir/magneticField.save/B.h5",
+                    "basis": "Pchv1"
+                    // },
+                    // "J": {
+                    //     "filename": "$cfgdir/currentDensity.save/J.h5",
+                    //     "basis": "Pchv1"
+                }
+            }
+        }
+    },
+    "Materials": {
+        "Conductor": {
+            "sigma": 58e6,
+            "mu": "4*pi*1e-7",
+            "k": 380,
+            "E": "117e+9",
+            "nu": "0.33",
+            "Lame_lambda": "E*nu/((1+nu)*(1-2*nu)):E:nu",
+            "Lame_mu": "E/(2*(1+nu)):E:nu",
+            "alphaT": "17e-6",
+            "stress_T": "-E/(1-2*nu)*alphaT*(meshes_cfpdes_fields_T-T0):E:nu:alphaT:meshes_cfpdes_fields_T:T0",
+            "F_laplace": "{-meshes_cfpdes_fields_J_1*meshes_cfpdes_fields_B_2+meshes_cfpdes_fields_J_2*meshes_cfpdes_fields_B_1,meshes_cfpdes_fields_J_0*meshes_cfpdes_fields_B_2-meshes_cfpdes_fields_J_2*meshes_cfpdes_fields_B_0,-meshes_cfpdes_fields_J_0*meshes_cfpdes_fields_B_1+meshes_cfpdes_fields_J_1*meshes_cfpdes_fields_B_0}:meshes_cfpdes_fields_B_0:meshes_cfpdes_fields_B_1:meshes_cfpdes_fields_B_2:meshes_cfpdes_fields_J_0:meshes_cfpdes_fields_J_1:meshes_cfpdes_fields_J_2",
+            "strain_xx": "(Lame_lambda+2*Lame_mu)*elastic_grad_u_00+Lame_lambda*elastic_grad_u_11+Lame_lambda*elastic_grad_u_22+bool_dilatation*stress_T:bool_dilatation:Lame_lambda:Lame_mu:elastic_grad_u_00:elastic_grad_u_11:elastic_grad_u_22:stress_T",
+            "strain_yy": "Lame_lambda*elastic_grad_u_00+(Lame_lambda+2*Lame_mu)*elastic_grad_u_11+Lame_lambda*elastic_grad_u_22+bool_dilatation*stress_T:bool_dilatation:Lame_lambda:Lame_mu:elastic_grad_u_00:elastic_grad_u_11:elastic_grad_u_22:stress_T",
+            "strain_zz": "Lame_lambda*elastic_grad_u_00+Lame_lambda*elastic_grad_u_11+(Lame_lambda+2*Lame_mu)*elastic_grad_u_22+bool_dilatation*stress_T:bool_dilatation:Lame_lambda:Lame_mu:elastic_grad_u_00:elastic_grad_u_11:elastic_grad_u_22:stress_T",
+            "strain_xy": "Lame_mu*(elastic_grad_u_01+elastic_grad_u_10):Lame_mu:elastic_grad_u_01:elastic_grad_u_10",
+            "strain_xz": "Lame_mu*(elastic_grad_u_02+elastic_grad_u_20):Lame_mu:elastic_grad_u_02:elastic_grad_u_20",
+            "strain_yz": "Lame_mu*(elastic_grad_u_12+elastic_grad_u_21):Lame_mu:elastic_grad_u_12:elastic_grad_u_21"
+        },
+        "Air": {
+            "mu": "4*pi*1e-7"
+        }
+    },
+    "BoundaryConditions": {
+        "elastic": {
+            "Dirichlet": {
+                "Upper": {
+                    "expr": "{0,0,0}"
+                },
+                "Bottom": {
+                    "expr": "{0,0,0}"
+                },
+                "elasdirx": {
+                    "markers": [
+                        "V0",
+                        "OXOZ"
+                    ],
+                    "expr": 0,
+                    "component": "y"
+                },
+                "elasdiry": {
+                    "markers": [
+                        "V1",
+                        "OYOZ"
+                    ],
+                    "expr": 0,
+                    "component": "x"
+                },
+                "elasdirz": {
+                    "markers": [
+                        "V0",
+                        "OXOZ",
+                        "V1",
+                        "OYOZ"
+                    ],
+                    "expr": 0,
+                    "component": "z"
+                }
+            }
+        }
+    },
+    "PostProcess": {
+        "cfpdes": {
+            "Exports": {
+                "fields": [
+                    "all"
+                ],
+                "expr": {
+                    "B": {
+                        "expr": "{meshes_cfpdes_fields_B_0,meshes_cfpdes_fields_B_1,meshes_cfpdes_fields_B_2}:meshes_cfpdes_fields_B_0:meshes_cfpdes_fields_B_1:meshes_cfpdes_fields_B_2",
+                        "representation": [
+                            "element"
+                        ]
+                    },
+                    "J": {
+                        "expr": "{meshes_cfpdes_fields_J_0,meshes_cfpdes_fields_J_1,meshes_cfpdes_fields_J_2}:meshes_cfpdes_fields_J_0:meshes_cfpdes_fields_J_1:meshes_cfpdes_fields_J_2",
+                        "representation": [
+                            "element"
+                        ],
+                        "markers": "Conductor"
+                    },
+                    "sigma": {
+                        "expr": "materials_sigma:materials_sigma",
+                        "markers": "Conductor"
+                    },
+                    "T": {
+                        "expr": "meshes_cfpdes_fields_T:meshes_cfpdes_fields_T",
+                        "markers": "Conductor"
+                    },
+                    "F_laplace": {
+                        "expr": "{materials_F_laplace_0, materials_F_laplace_1}:materials_F_laplace_0:materials_F_laplace_1",
+                        "markers": "Conductor"
+                    },
+                    "stress_T": {
+                        "expr": "materials_stress_T:materials_stress_T",
+                        "markers": "Conductor"
+                    },
+                    "strain": {
+                        "expr": "{materials_strain_xx,materials_strain_xy,materials_strain_xz,materials_strain_xy,materials_strain_yy,materials_strain_yz,materials_strain_xz,materials_strain_yz,materials_strain_zz}:materials_strain_xx:materials_strain_xy:materials_strain_xz:materials_strain_yy:materials_strain_yz:materials_strain_zz",
+                        "representation": [
+                            "element"
+                        ],
+                        "marker": "Conductor"
+                    }
+                }
+            }
+        },
+        "elastic": {
+            "Save": {
+                "Fields": {
+                    "names": [
+                        "displacement"
+                    ]
+                }
+            },
+            "Measures": {
+                "Statistics": {
+                    "Stat_Displ": {
+                        "type": [
+                            "min",
+                            "max",
+                            "mean"
+                        ],
+                        "field": "displacement"
+                    }
+                }
+            }
+        }
+    }
+}

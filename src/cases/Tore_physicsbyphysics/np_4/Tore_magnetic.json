@@ -1,0 +1,297 @@
+{
+    "Name": "Laplace",
+    "ShortName": "thermo-mag-3d-static",
+    "Models": {
+        "cfpdes": {
+            "equations": [
+                "magnetic",
+                "electric" //,
+                // "magneticField",
+                // "currentDensity"
+            ]
+        },
+        "magnetic": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pchv1",
+                        "name": "A",
+                        "symbol": "A"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "magnetic_Conductor",
+                    "materials": "Conductor",
+                    "setup": {
+                        "coefficients": {
+                            "c": "1/materials_Conductor_mu:materials_Conductor_mu",
+                            "f": "{-materials_Conductor_sigma*electric_grad_V_0,-materials_Conductor_sigma*electric_grad_V_1,-materials_Conductor_sigma*electric_grad_V_2}:materials_Conductor_sigma:electric_grad_V_0:electric_grad_V_1:electric_grad_V_2"
+                        }
+                    }
+                },
+                {
+                    "name": "magnetic_Air",
+                    "materials": "Air",
+                    "setup": {
+                        "coefficients": {
+                            "c": "1/materials_Air_mu:materials_Air_mu"
+                        }
+                    }
+                }
+            ]
+        },
+        "electric": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pch1",
+                        "name": "V",
+                        "symbol": "V"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "electric_Conductor",
+                    "materials": [
+                        "Conductor"
+                    ],
+                    "setup": {
+                        "coefficients": {
+                            "a": "1",
+                            "f": "meshes_cfpdes_fields_V:meshes_cfpdes_fields_V"
+                        }
+                    }
+                }
+            ]
+        } //,
+        // "magneticField": {
+        //     "common": {
+        //         "setup": {
+        //             "unknown": {
+        //                 "basis": "Pchv1",
+        //                 "name": "B",
+        //                 "symbol": "B"
+        //             }
+        //         }
+        //     },
+        //     "models": [
+        //         {
+        //             "name": "magneticField_all",
+        //             "materials": [
+        //                 "Conductor",
+        //                 "Air"
+        //             ],
+        //             "setup": {
+        //                 "coefficients": {
+        //                     "a": 1,
+        //                     "f": "{magnetic_grad_A_21-magnetic_grad_A_12,magnetic_grad_A_02-magnetic_grad_A_20,magnetic_grad_A_10-magnetic_grad_A_01}:magnetic_grad_A_12:magnetic_grad_A_21:magnetic_grad_A_20:magnetic_grad_A_02:magnetic_grad_A_01:magnetic_grad_A_10"
+        //                 }
+        //             }
+        //         }
+        //     ]
+        // },
+        // "currentDensity": {
+        //     "common": {
+        //         "setup": {
+        //             "unknown": {
+        //                 "basis": "Pchv1",
+        //                 "name": "J",
+        //                 "symbol": "J"
+        //             }
+        //         }
+        //     },
+        //     "models": [
+        //         {
+        //             "name": "currentDensity_Conductor",
+        //             "materials": [
+        //                 "Conductor"
+        //             ],
+        //             "setup": {
+        //                 "coefficients": {
+        //                     "a": 1,
+        //                     "f": "{-materials_Conductor_sigma*electric_grad_V_0,-materials_Conductor_sigma*electric_grad_V_1,-materials_Conductor_sigma*electric_grad_V_2}:materials_Conductor_sigma:electric_grad_V_0:electric_grad_V_1:electric_grad_V_2"
+        //                 }
+        //             }
+        //         }
+        //     ]
+        // }
+    },
+    "Parameters": {
+        "V0": 0,
+        "V1": "1/4* 0.23185953",
+        "hw": 80000,
+        "T_c": 293,
+        "T_i": 293
+    },
+    "Meshes": {
+        "cfpdes": {
+            "Fields": {
+                "Abmap": {
+                    "filename": "$cfgdir/Magnetic_potential.h5",
+                    "basis": "Pchv1"
+                }
+                // "T": {
+                //     "filename": "$cfgdir/heat.save/temperature.h5",
+                //     "basis": "Pch1"
+                // },
+                // "V": {
+                //     "filename": "$cfgdir/electric.save/electric-potential.h5",
+                //     "basis": "Pch1"
+                // }
+            }
+        }
+    },
+    "Materials": {
+        "Conductor": {
+            "sigma": 58e6,
+            "mu": "4*pi*1e-7",
+            "k": 380
+        },
+        "Air": {
+            "mu": "4*pi*1e-7"
+        }
+    },
+    "BoundaryConditions": {
+        "magnetic": {
+            "Dirichlet": {
+                "Infty": {
+                    // "expr": "{0,0,0}"
+                    "expr": "{meshes_cfpdes_fields_Amap_0,meshes_cfpdes_fields_Amap_1,meshes_cfpdes_fields_Amap_2}:meshes_cfpdes_fields_Amap_0:meshes_cfpdes_fields_Amap_1:meshes_cfpdes_fields_Amap_2"
+                },
+                "magdirx": {
+                    "markers": [
+                        "V0",
+                        "OXOZ"
+                    ],
+                    "expr": 0,
+                    "component": "x"
+                },
+                "magdiry": {
+                    "markers": [
+                        "V1",
+                        "OYOZ"
+                    ],
+                    "expr": 0,
+                    "component": "y"
+                },
+                "magdirz": {
+                    "markers": [
+                        "V0",
+                        "OXOZ",
+                        "V1",
+                        "OYOZ"
+                    ],
+                    "expr": 0,
+                    "component": "z"
+                }
+            }
+        }
+    },
+    "PostProcess": {
+        "use-model-name": 1,
+        "cfpdes": {
+            "Exports": {
+                "fields": [
+                    "all"
+                ],
+                "expr": {
+                    "B": {
+                        "expr": "{magnetic_grad_A_21-magnetic_grad_A_12,magnetic_grad_A_02-magnetic_grad_A_20,magnetic_grad_A_10-magnetic_grad_A_01}:magnetic_grad_A_12:magnetic_grad_A_21:magnetic_grad_A_20:magnetic_grad_A_02:magnetic_grad_A_01:magnetic_grad_A_10"
+                    },
+                    "J": {
+                        "expr": "{-materials_Conductor_sigma*electric_grad_V_0,-materials_Conductor_sigma*electric_grad_V_1,-materials_Conductor_sigma*electric_grad_V_2}:materials_Conductor_sigma:electric_grad_V_0:electric_grad_V_1:electric_grad_V_2",
+                        "markers": "Conductor"
+                    },
+                    "T": {
+                        "expr": "meshes_cfpdes_fields_T:meshes_cfpdes_fields_T",
+                        "markers": "Conductor"
+                    },
+                    "V": {
+                        "expr": "meshes_cfpdes_fields_V:meshes_cfpdes_fields_V",
+                        "markers": "Conductor"
+                    },
+                    "A_bmap": {
+                        "expr": "{meshes_cfpdes_fields_Abmap_0,meshes_cfpdes_fields_Abmap_1,meshes_cfpdes_fields_Abmap_2}:meshes_cfpdes_fields_Abmap_0:meshes_cfpdes_fields_Abmap_1:meshes_cfpdes_fields_Abmap_2"
+                        // },
+                        // "B_bmap": {
+                        //     "expr": "{meshes_cfpdes_fields_Bbmap_0,meshes_cfpdes_fields_Bbmap_1,meshes_cfpdes_fields_Bbmap_2}:meshes_cfpdes_fields_Bbmap_0:meshes_cfpdes_fields_Bbmap_1:meshes_cfpdes_fields_Bbmap_2"
+                    }
+                }
+            }
+        },
+        "magnetic": {
+            "Save": {
+                "Fields": {
+                    "names": [
+                        "A"
+                    ]
+                }
+            },
+            "Measures": {
+                "Points": {
+                    "check": {
+                        "coord": "{0.0608,0.0608,0.}",
+                        "fields": "A"
+                    }
+                },
+                "Norm": {
+                    "myerrorA": {
+                        "type": "L2-error",
+                        "field": "A",
+                        "solution": "{meshes_cfpdes_fields_Abmap_0,meshes_cfpdes_fields_Abmap_1,meshes_cfpdes_fields_Abmap_2}:meshes_cfpdes_fields_Abmap_0:meshes_cfpdes_fields_Abmap_1:meshes_cfpdes_fields_Abmap_2",
+                        "markers": [
+                            "Conductor",
+                            "Air"
+                        ]
+                    },
+                    "myerrorB": {
+                        "type": "L2-error",
+                        "field": "B",
+                        "solution": "{meshes_cfpdes_fields_Bbmap_0,meshes_cfpdes_fields_Bbmap_1,meshes_cfpdes_fields_Bbmap_2}:meshes_cfpdes_fields_Bbmap_0:meshes_cfpdes_fields_Bbmap_1:meshes_cfpdes_fields_Bbmap_2",
+                        "markers": [
+                            "Conductor",
+                            "Air"
+                        ]
+                    }
+                }
+            },
+            "Checkers": {
+                "Measures": {
+                    "Points_check_field_A_0": {
+                        "value": "-0.008747462834330673",
+                        "tolerance": 5e-3
+                    },
+                    "Points_check_field_A_1": {
+                        "value": "-0.008747462834330672",
+                        "tolerance": 5e-3
+                    },
+                    "Points_check_field_A_2": {
+                        "value": 0,
+                        "tolerance": 5e-3
+                    }
+                }
+            }
+        } //,
+        // "magneticField": {
+        //     "Save": {
+        //         "Fields": {
+        //             "names": [
+        //                 "B"
+        //             ]
+        //         }
+        //     }
+        // },
+        // "currentDensity": {
+        //     "Save": {
+        //         "Fields": {
+        //             "names": [
+        //                 "J"
+        //             ]
+        //         }
+        //     }
+        // }
+    }
+}

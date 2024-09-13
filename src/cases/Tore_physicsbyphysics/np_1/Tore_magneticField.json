@@ -1,0 +1,98 @@
+{
+    "Name": "Laplace",
+    "ShortName": "thermo-mag-3d-static",
+    "Models": {
+        "cfpdes": {
+            "equations": [
+                "magnetic",
+                "magneticField" //,
+                // "currentDensity"
+            ]
+        },
+        "magnetic": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pchv1",
+                        "name": "A",
+                        "symbol": "A"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "magnetic_all",
+                    "materials": [
+                        "Conductor",
+                        "Air"
+                    ],
+                    "setup": {
+                        "coefficients": {
+                            "a": "1",
+                            "f": "{meshes_cfpdes_fields_A_0,meshes_cfpdes_fields_A_1,meshes_cfpdes_fields_A_2}:meshes_cfpdes_fields_A_0:meshes_cfpdes_fields_A_1:meshes_cfpdes_fields_A_2"
+                        }
+                    }
+                }
+            ]
+        },
+        "magneticField": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pchv1",
+                        "name": "B",
+                        "symbol": "B"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "magneticField_all",
+                    "materials": [
+                        "Conductor",
+                        "Air"
+                    ],
+                    "setup": {
+                        "coefficients": {
+                            "a": "1",
+                            "f": "{magnetic_grad_A_21-magnetic_grad_A_12,magnetic_grad_A_02-magnetic_grad_A_20,magnetic_grad_A_10-magnetic_grad_A_01}:magnetic_grad_A_12:magnetic_grad_A_21:magnetic_grad_A_20:magnetic_grad_A_02:magnetic_grad_A_01:magnetic_grad_A_10"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "Meshes": {
+        "cfpdes": {
+            "Fields": {
+                "A": {
+                    "filename": "$cfgdir/magnetic.save/A.h5",
+                    "basis": "Pchv1"
+                }
+            }
+        }
+    },
+    "Materials": {
+        "Conductor": {},
+        "Air": {}
+    },
+    "PostProcess": {
+        "use-model-name": 1,
+        "cfpdes": {
+            "Exports": {
+                "fields": [
+                    "all"
+                ]
+            }
+        },
+        "magneticField": {
+            "Save": {
+                "Fields": {
+                    "names": [
+                        "B"
+                    ]
+                }
+            }
+        }
+    }
+}

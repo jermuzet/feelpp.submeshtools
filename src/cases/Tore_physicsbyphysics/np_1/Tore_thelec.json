@@ -1,0 +1,150 @@
+{
+    "Name": "thelec",
+    "ShortName": "thelec",
+    "Models": {
+        "heat": [
+            {
+                "name": "heat",
+                "materials": [
+                    "Conductor"
+                ]
+            }
+        ],
+        "electric": [
+            {
+                "name": "elec",
+                "materials": [
+                    "Conductor"
+                ]
+            }
+        ],
+        "thermoelectric": [
+            {
+                "name": "thelec",
+                "submodels": {
+                    "heat": "heat",
+                    "electric": "elec"
+                }
+            }
+        ]
+    },
+    "Parameters": {
+        "V0": 0,
+        "V1": "1/4* 0.23185953",
+        "hw": 80000,
+        "T_c": 293,
+        "T_i": 293
+    },
+    "Materials": {
+        "Conductor": {
+            "sigma": 58e6,
+            "k": 380
+        },
+        "Air": {}
+    },
+    "InitialConditions": {
+        "heat": {
+            "temperature": {
+                "Expression": {
+                    "myic": {
+                        "markers": [
+                            "Conductor"
+                        ],
+                        "expr": "T_i:T_i"
+                    }
+                }
+            }
+        }
+    },
+    "BoundaryConditions": {
+        "electric": {
+            "ground": {
+                "markers": "V0"
+            },
+            "electric_potential": {
+                "V1": {
+                    "expr": "V1:V1"
+                }
+            }
+        },
+        "heat": {
+            "convective_heat_flux": {
+                "Interior": {
+                    "h": "hw:hw",
+                    "Text": "T_c:T_c"
+                },
+                "Exterior": {
+                    "h": "hw:hw",
+                    "Text": "T_c:T_c"
+                }
+            }
+        }
+    },
+    "PostProcess": {
+        "use-model-name": 1,
+        "thermoelectric": {
+            "Exports": {
+                "fields": [
+                    "heat.temperature",
+                    "electric.electric-potential",
+                    "electric.current-density",
+                    "electric.electric-field",
+                    "pid"
+                ]
+            }
+        },
+        "heat": {
+            "Save": {
+                "Fields": {
+                    "names": [
+                        "temperature"
+                    ]
+                }
+            },
+            "Measures": {
+                "Points": {
+                    "Tmax": {
+                        "coord": "{0.086191,0,0}",
+                        "fields": "temperature"
+                    }
+                },
+                "Statistics": {
+                    "Intensity0": {
+                        "type": "integrate",
+                        "expr": "materials_sigma*electric_dn_P:materials_sigma:electric_dn_P",
+                        "markers": "V0"
+                    },
+                    "Intensity1": {
+                        "type": "integrate",
+                        "expr": "-materials_sigma*electric_dn_P:materials_sigma:electric_dn_P",
+                        "markers": "V1"
+                    },
+                    "Power": {
+                        "type": "integrate",
+                        "expr": "materials_sigma*(electric_grad_P_0^2+electric_grad_P_1^2+electric_grad_P_2^2):materials_sigma:electric_grad_P_0:electric_grad_P_1:electric_grad_P_2",
+                        "markers": [
+                            "Conductor"
+                        ]
+                    }
+                }
+            },
+            "Checkers": {
+                "Measures": {
+                    "Points_Tmax_field_temperature": {
+                        "value": 296.8408722845454,
+                        "tolerance": 1e-3
+                    }
+                }
+            }
+        },
+        "electric": {
+            "Save": {
+                "Fields": {
+                    "names": [
+                        "electric-potential"
+                    ]
+                }
+            }
+        }
+    }
+}

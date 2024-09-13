@@ -1,0 +1,87 @@
+{
+    "Name": "Laplace",
+    "ShortName": "thermo-mag-3d-static",
+    "Models": {
+        "cfpdes": {
+            "equations": [
+                "electric",
+                "currentDensity"
+            ]
+        },
+        "electric": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pch1",
+                        "name": "V",
+                        "symbol": "V"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "electric_Conductor",
+                    "materials": [
+                        "Conductor"
+                    ],
+                    "setup": {
+                        "coefficients": {
+                            "a": "1",
+                            "f": "meshes_cfpdes_fields_V:meshes_cfpdes_fields_V"
+                        }
+                    }
+                }
+            ]
+        },
+        "currentDensity": {
+            "common": {
+                "setup": {
+                    "unknown": {
+                        "basis": "Pchv1",
+                        "name": "J",
+                        "symbol": "J"
+                    }
+                }
+            },
+            "models": [
+                {
+                    "name": "currentDensity_Conductor",
+                    "materials": [
+                        "Conductor"
+                    ],
+                    "setup": {
+                        "coefficients": {
+                            "a": 1,
+                            "f": "{-materials_Conductor_sigma*electric_grad_V_0,-materials_Conductor_sigma*electric_grad_V_1,-materials_Conductor_sigma*electric_grad_V_2}:materials_Conductor_sigma:electric_grad_V_0:electric_grad_V_1:electric_grad_V_2"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "Materials": {
+        "Conductor": {
+            "sigma": 58e6
+        },
+        "Air": {}
+    },
+    "PostProcess": {
+        "use-model-name": 1,
+        "cfpdes": {
+            "Exports": {
+                "fields": [
+                    "all"
+                ]
+            }
+        },
+        "currentDensity": {
+            "Save": {
+                "Fields": {
+                    "names": [
+                        "J"
+                    ]
+                }
+            }
+        }
+    }
+}
