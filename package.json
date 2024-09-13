@@ -41,7 +41,7 @@
     "@feelpp/asciidoctor-extensions": "1.0.0-rc.11"
   },
   "devDependencies": {
-    "broken-link-checker": "^0.6.7",
+    "broken-link-checker": "^0.7.8",
     "http-server": "^14.1.1",
     "write-good": "^1.0.8"
   },
