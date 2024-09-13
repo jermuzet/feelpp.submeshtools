@@ -1,9 +1,9 @@
-###  TEMPLATE.txt.tpl; coding: utf-8 ---
+# ##  TEMPLATE.txt.tpl; coding: utf-8 ---
 
-#  Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
-#       Date: 2020-06-03
+# Author(s): Christophe Prud'homme <christophe.prudhomme@feelpp.org>
+# Date: 2020-06-03
 #
-#  Copyright (C) 2020 Cemosis
+# Copyright (C) 2020 Cemosis
 #
 # Distributed under the GPL(GNU Public License):
 # This program is free software; you can redistribute it and/or modify
@@ -21,25 +21,25 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 #
-feelpp_add_application(laplacian SRCS laplacian.cpp TESTS INSTALL )
-feelpp_add_testcase(cases PREFIX fp CATEGORY feelpp)
 
-if(FEELPP_TOOLBOXES_FOUND)
-    feelpp_add_application(toolbox SRCS toolbox.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_electric_lib TESTS)
-    feelpp_add_testcase(cases)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
+if(MAGNETTOOLS_FOUND)
+    message(STATUS "[MagnetTools] \nincludes: ${MAGNETTOOLS_INCLUDE_DIR} \nlibraries: ${MAGNETTOOLS_LIBRARY}")
+    include_directories(${GSL_INCLUDES})
+    include_directories(${FREESTEAM_INCLUDES})
+    include_directories(${GNUPLOT_IOSTREAM_INCLUDE_DIRS})
+    include_directories(${MAGNETTOOLS_INCLUDE_DIR})
 endif()
 
-foreach(binding laplacian)
-    if ( SKBUILD_PROJECT_NAME )
-            python_add_library(_${binding} MODULE _${binding}.cpp WITH_SOABI)
-            target_link_libraries(_${binding} PRIVATE pybind11::headers Feelpp::feelpp)
-            target_compile_definitions(_${binding} PRIVATE VERSION_INFO=${PROJECT_VERSION})
-            install(TARGETS _${binding} DESTINATION feelpp_project)
-    else()
-        feelpp_add_pymodule(${binding} SRCS _${binding}.cpp DESTINATION ${PROJECT_NAME})
-        file(GLOB PYFILES "${CMAKE_CURRENT_SOURCE_DIR}/feelpp_project/*.py")
-        install(FILES ${PYFILES} DESTINATION ${FEELPP_PYTHON_MODULE_PATH}/${PROJECT_NAME})
-    endif()
-endforeach()
+feelpp_add_application(cfpdes_mag SRCS cfpdes_mag.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
+feelpp_add_application(cfpdes_mag_amap SRCS cfpdes_mag_amap.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib ${FEELPP_LIBRARIES} ${GSL_LIBRARIES} ${FREESTEAM_LIB} ${MAGNETTOOLS_LIBRARIES})
 
-add_subdirectory( cases/laplacian)
+# feelpp_add_application(cfpdes_mag_biot_savart SRCS cfpdes_mag_biot_savart.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
+feelpp_add_application(cfpdes_mag_biot_savart_pdhv0 SRCS cfpdes_mag_biot_savart_pdhv0.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
+feelpp_add_application(cfpdes_elas SRCS cfpdes_elas.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
+
+# if ( FEELPP_TOOLBOXES_FOUND )
+# feelpp_add_application(toolbox SRCS toolbox.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_electric_lib TESTS)
+# feelpp_add_testcase(cases)
+# endif()
