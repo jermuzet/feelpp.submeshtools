@@ -36,7 +36,7 @@
     },
     "Parameters": {
         "bool_laplace": 1,
-        "bool_dilatation": 0,
+        "bool_dilatation": 1,
         "V0": 0,
         "V1": "1/4* 0.23185953",
         "hw": 80000,
