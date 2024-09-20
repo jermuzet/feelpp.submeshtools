@@ -22,17 +22,20 @@ int main( int argc, char* argv[] )
     using model_type = FeelModels::coefficient_form_PDEs_t< Simplex<3,1> >;
     using mesh_type = typename model_type::mesh_type;
 
+    // init cfpdes & mesh
     auto cfpdes = std::make_shared<model_type>( "cfpdes" );
     cfpdes->init();
     auto mesh = cfpdes->mesh();
     auto rangeElt = markedelements(mesh,"Conductor");
 
+    // load Current Density on Conductor submesh
     auto Vh = Pchv<1>( mesh, rangeElt );
     auto v = Vh->element();
     // v.load(_path="$cfgdir/electric.save/electric-potential.h5",_name="electric-potential");
     v.load(_path="$cfgdir/currentDensity.save/J.h5",_name="J");
     cfpdes->modelMesh().template updateField<mesh_type>( "J", idv(v), rangeElt, "Pchv1" );
 
+    // load T on Conductor submesh
     auto Th = Pch<1>( mesh, rangeElt );
     auto t = Th->element();
     t.load(_path="$cfgdir/heat.save/temperature.h5",_name="temperature");

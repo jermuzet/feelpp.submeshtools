@@ -35,7 +35,7 @@ endif()
 feelpp_add_application(cfpdes_mag SRCS cfpdes_mag.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
 feelpp_add_application(cfpdes_mag_amap SRCS cfpdes_mag_amap.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib ${FEELPP_LIBRARIES} ${GSL_LIBRARIES} ${FREESTEAM_LIB} ${MAGNETTOOLS_LIBRARIES})
 
-# feelpp_add_application(cfpdes_mag_biot_savart SRCS cfpdes_mag_biot_savart.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
+feelpp_add_application(cfpdes_mag_biot_savart SRCS cfpdes_mag_biot_savart.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
 feelpp_add_application(cfpdes_mag_biot_savart_pdhv0 SRCS cfpdes_mag_biot_savart_pdhv0.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
 feelpp_add_application(cfpdes_elas SRCS cfpdes_elas.cpp LINK_LIBRARIES Feelpp::feelpp_toolbox_coefficientformpdes_lib)
 

@@ -143,21 +143,22 @@ int main( int argc, char* argv[] )
     using model_type = FeelModels::coefficient_form_PDEs_t< Simplex<3,1> >;
     using mesh_type = typename model_type::mesh_type;
 
+    // init cfpdes & mesh
     auto cfpdes = std::make_shared<model_type>( "cfpdes" );
     cfpdes->init();
     auto mesh = cfpdes->mesh();
     auto rangeElt = markedelements(mesh,"Conductor");
 
+    // load V on Conductor submesh
     auto Vh = Pch<1>( mesh, rangeElt );
     auto v = Vh->element();
-    // v.load(_path="$cfgdir/electric.save/electric-potential.h5",_name="electric-potential");
-    v.load(_path="$cfgdir/electric.save/electric-potential_np4.h5",_name="electric-potential_np4");
+    v.load(_path="$cfgdir/electric.save/electric-potential.h5",_name="electric-potential");
     cfpdes->modelMesh().template updateField<mesh_type>( "V", idv(v), rangeElt, "Pch1" );
 
+    // load T on Conductor submesh
     auto Th = Pch<1>( mesh, rangeElt );
     auto t = Th->element();
-    // t.load(_path="$cfgdir/heat.save/temperature.h5",_name="temperature");
-    t.load(_path="$cfgdir/heat.save/temperature_np4.h5",_name="temperature_np4");
+    t.load(_path="$cfgdir/heat.save/temperature.h5",_name="temperature");
     cfpdes->modelMesh().template updateField<mesh_type>( "T", idv(t), rangeElt, "Pch1" );
 
 
@@ -165,6 +166,8 @@ int main( int argc, char* argv[] )
     // std::cout << "rangeEltBC " << rangeEltBC << std::endl;
     // auto Ah = Pchv<1>(mesh);//, rangeEltBC );
     // auto a = Ah->element();
+
+    // compute & load A from Magnettools
     auto a = runBmap<mesh_type>(mesh);
     cfpdes->modelMesh().template updateField<mesh_type>( "Amap", idv(a), "Pchv1" );//,rangeEltBC, "Pchv1" );
     
